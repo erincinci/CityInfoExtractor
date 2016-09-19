@@ -18,7 +18,7 @@ import javax.annotation.PostConstruct;
 public class Application {
     // Attributes
     private static final Logger logger = LoggerFactory.getLogger(Application.class);
-    private static enum EXIT_CODES { SUCCESS, NO_ARGS, INVALID_ARGS, CSV_ERR }
+    private enum EXIT_CODES { SUCCESS, NO_ARGS, INVALID_ARGS, CSV_ERR }
     private static String cityName;
 
     @Autowired

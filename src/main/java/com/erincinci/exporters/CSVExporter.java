@@ -15,6 +15,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +38,8 @@ public class CSVExporter implements IExporter<String, Boolean> {
     private String goEuroApiUrl;
     @Value("${goeuro.api.lang}")
     private String goEuroApiLanguage;
+    @Value("${output.csv.filename}")
+    private String outputFilename;
 
     /**
      * Initialize
@@ -58,12 +66,26 @@ public class CSVExporter implements IExporter<String, Boolean> {
         // Get city suggestions
         List<City> cities = goEuro.suggestCity(goEuroApiLanguage, cityName);
 
-        // TODO: Check for empty results
+        // Check for empty results
+        if (cities.isEmpty()) {
+            logger.warn("No suggestions found from API for " + cityName);
+            return false;
+        }
 
-        // TODO: Export to CSV file
-
+        // Prepare CSV Lines
+        // TODO: Convert to Jackson CSV Mapper
+        List<String> csvLines = new ArrayList<>();
         for (City city : cities)
-            logger.info(city.toString());
-        return true;
+            csvLines.add(city.toCsvLine());
+
+        // Write data to .csv file
+        Path file = Paths.get(outputFilename);
+        try {
+            Files.write(file, csvLines, Charset.forName("UTF-8"));
+            return true;
+        } catch (IOException e) {
+            logger.error("Error writing data to CSV file!", e);
+            return false;
+        }
     }
 }

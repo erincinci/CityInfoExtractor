@@ -68,6 +68,18 @@ public class City extends BaseModel {
     }
 
     /**
+     * Auxiliary Methods
+     */
+    public String toCsvLine() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getId()).append(',')
+                .append(this.name).append(',')
+                .append(this.type).append(',')
+                .append(this.geoPosition.toCsvLine());
+        return sb.toString();
+    }
+
+    /**
      * Getters & Setters
      * @return
      */

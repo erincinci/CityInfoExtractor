@@ -47,4 +47,11 @@ public class GeoPosition extends BaseModel {
     public void setLongitude(float longitude) {
         this.longitude = longitude;
     }
+
+    @Override
+    public String toCsvLine() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(latitude).append(',').append(longitude);
+        return sb.toString();
+    }
 }

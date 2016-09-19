@@ -75,6 +75,12 @@ public abstract class BaseModel implements Serializable {
     }
 
     /**
+     * Map to CSV Line
+     * @return
+     */
+    public abstract String toCsvLine();
+
+    /**
      * toString Overriden for formatted debug outputs for models
      * @return
      */
