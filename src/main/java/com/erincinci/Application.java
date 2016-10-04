@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -21,6 +22,10 @@ public class Application {
     private enum EXIT_CODES { SUCCESS, NO_ARGS, INVALID_ARGS, CSV_ERR }
     private static String cityName;
 
+    // Properties
+    @Value("${test.mode}")
+    private boolean isTestMode;
+
     @Autowired
     @Qualifier("csvExporter")
     private IExporter<String, Boolean> csvExporter;
@@ -31,11 +36,13 @@ public class Application {
     @PostConstruct
     public void init() {
         // Check suggestions and convert to CSV file
-        if (csvExporter.export(cityName)) {
-            logger.info("Exported to CSV!");
-        } else {
-            logger.error("There was an error converting to CSV!");
-            System.exit(EXIT_CODES.CSV_ERR.ordinal());
+        if (!isTestMode) {
+            if (csvExporter.export(cityName)) {
+                logger.info("Exported suggestions for '" + cityName + "' to CSV!");
+            } else {
+                logger.warn("CSV file could not be created!");
+                System.exit(EXIT_CODES.CSV_ERR.ordinal());
+            }
         }
     }
 
@@ -49,7 +56,7 @@ public class Application {
             logger.error("Please provide a single program argument: CITY_NAME");
             System.exit(EXIT_CODES.NO_ARGS.ordinal());
         }
-        if (args[0].isEmpty()) {
+        if (args[0] == null || args[0].isEmpty()) {
             logger.warn("Please provide a valid CITY_NAME!");
             System.exit(EXIT_CODES.INVALID_ARGS.ordinal());
         }

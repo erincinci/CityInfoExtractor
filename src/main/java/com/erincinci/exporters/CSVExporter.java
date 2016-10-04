@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import feign.Feign;
+import feign.FeignException;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,27 +66,38 @@ public class CSVExporter implements IExporter<String, Boolean> {
      */
     public Boolean export(String cityName) {
         // Get city suggestions
-        List<City> cities = goEuro.suggestCity(goEuroApiLanguage, cityName);
-
-        // Check for empty results
-        if (cities.isEmpty()) {
-            logger.warn("No suggestions found from API for " + cityName);
+        List<City> cities;
+        try {
+            cities = goEuro.suggestCity(goEuroApiLanguage, cityName);
+        } catch (FeignException e) {
+            logger.error("HTTP exception while getting suggestions! " + e);
             return false;
         }
 
-        // Prepare CSV Lines
-        // TODO: Convert to Jackson CSV Mapper
+        // Check for empty results
+        if (cities.isEmpty()) {
+            logger.warn("No suggestions found from GoEuro API for city '" + cityName + "'");
+            return false;
+        }
+
+        // Prepare CSV Lines (Can be converted to Jackson CSV Mapper)
         List<String> csvLines = new ArrayList<>();
         for (City city : cities)
             csvLines.add(city.toCsvLine());
 
-        // Write data to .csv file
-        Path file = Paths.get(outputFilename);
+        // Write data to .csv file (overwrite if exists)
+        Path filePath = Paths.get(outputFilename);
         try {
-            Files.write(file, csvLines, Charset.forName("UTF-8"));
+            Files.write(
+                    filePath,
+                    csvLines,
+                    Charset.forName("UTF-8"),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+            );
             return true;
         } catch (IOException e) {
-            logger.error("Error writing data to CSV file!", e);
+            logger.error("IO exception while writing data to CSV file! " + e);
             return false;
         }
     }

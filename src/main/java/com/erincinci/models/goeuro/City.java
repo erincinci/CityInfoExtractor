@@ -3,8 +3,6 @@ package com.erincinci.models.goeuro;
 import com.erincinci.models.BaseModel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Date;
-
 /**
  * GoEuro City Model
  * Created by erincinci on 19.09.2016.
