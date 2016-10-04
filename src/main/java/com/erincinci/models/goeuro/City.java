@@ -14,7 +14,7 @@ public class City extends BaseModel {
     private String name;
     private String fullName;
     @JsonProperty("iata_airport_code") private String iataAirportCode;
-    private String type; // TODO: can be converted to API after examining API documentation
+    private String type; // TODO: can be converted to Enum after examining API documentation
     private String country;
     @JsonProperty("geo_position") private GeoPosition geoPosition;
     private Long locationId;
