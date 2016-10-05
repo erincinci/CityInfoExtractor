@@ -1,6 +1,7 @@
 package com.erincinci;
 
 import com.erincinci.exporters.IExporter;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import sun.jvm.hotspot.utilities.Assert;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,18 +33,16 @@ public class ApplicationTest {
 
     @Test
     public void shouldFindSuggestions() throws Exception {
-        Assert.that(csvExporter.export("Ankara"), "CSV exporter was not successful!");
+        Assert.assertTrue(csvExporter.export("Ankara"));
 
         File outputCsv = new File(System.getProperty("user.dir") + "/" + outputFilename);
-        Assert.that(outputCsv.exists(), "Output CSV file not found!");
-        Assert.that((countLines(outputCsv) == 3), "There should be 3 results for Ankara!");
+        Assert.assertTrue(outputCsv.exists());
+        Assert.assertEquals(3, countLines(outputCsv));
     }
 
     @Test
     public void shouldNotFindSuggestions() throws Exception {
-        Assert.that(!csvExporter.export("Hebele"), "Should have failed!");
-        Assert.that(!csvExporter.export(""), "Should have failed!");
-        Assert.that(!csvExporter.export(null), "Should have failed!");
+        Assert.assertFalse(csvExporter.export("Hebele"));
     }
 
     /**
